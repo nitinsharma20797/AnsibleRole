@@ -4,7 +4,7 @@
 
 # Author Information
 
-| Created by   | Created on  | Version | Last updated ON | Pre Reviewer    |
+| Created by   | Created on  | Version | Last updated ON |  Reviewer    |
 |--------------|------------|---------|----------------|----------------|
 | Nitin Sharma | 20-01-2026 | V1.0    | 20-01-2026     | Shweta Tyagi  |
 
