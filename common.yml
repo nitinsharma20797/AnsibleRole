@@ -1,0 +1,24 @@
+---
+- name: Common setup (hostname + /etc/hosts)
+  hosts: rabbit_nodes
+  become: yes
+  vars:
+    hosts_map:
+      rabbit1: 54.163.61.49
+      rabbit2: 50.17.28.165
+      rabbit3: 98.92.224.124
+
+  tasks:
+
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Update /etc/hosts for RabbitMQ cluster
+      blockinfile:
+        path: /etc/hosts
+        create: yes
+        block: |
+          {% for host, ip in hosts_map.items() %}
+          {{ ip }} {{ host }}
+          {% endfor %}
