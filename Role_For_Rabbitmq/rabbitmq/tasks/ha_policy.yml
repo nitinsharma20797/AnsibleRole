@@ -1,0 +1,10 @@
+---
+- name: Set HA policy for queues
+  command: >
+    rabbitmqctl set_policy
+    {{ rabbitmq_policy_name }}
+    "{{ rabbitmq_policy_pattern }}"
+    '{{ rabbitmq_policy_definition }}'
+    --apply-to queues
+  run_once: true
+  become: yes

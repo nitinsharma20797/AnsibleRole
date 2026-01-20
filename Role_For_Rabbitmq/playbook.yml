@@ -1,5 +1,3 @@
 ---
-- hosts: rabbit_nodes
-  become: yes
-  roles:
-    - rabbitmq
+- import_playbook: common.yml
+- import_playbook: site.yml

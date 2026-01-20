@@ -1,0 +1,10 @@
+---
+- name: Set Erlang cookie
+  copy:
+    dest: /var/lib/rabbitmq/.erlang.cookie
+    content: "{{ rabbitmq_erlang_cookie }}"
+    owner: rabbitmq
+    group: rabbitmq
+    mode: '0400'
+  notify: restart rabbitmq
+  become: yes

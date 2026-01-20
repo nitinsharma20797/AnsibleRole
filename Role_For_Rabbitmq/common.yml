@@ -2,15 +2,10 @@
 - name: Common setup (hostname + /etc/hosts)
   hosts: rabbit_nodes
   become: yes
-  vars:
-    hosts_map:
-      node1: 34.228.55.113
-      node2: 13.218.123.143
-      node3: 54.208.231.84
 
   tasks:
 
-    - name: Set hostname
+    - name: Set hostname (must match inventory name)
       hostname:
         name: "{{ inventory_hostname }}"
 
@@ -18,7 +13,8 @@
       blockinfile:
         path: /etc/hosts
         create: yes
+        marker: "# {mark} ANSIBLE RABBITMQ CLUSTER"
         block: |
-          {% for host, ip in hosts_map.items() %}
-          {{ ip }} {{ host }}
+          {% for host in groups['rabbit_nodes'] %}
+          {{ hostvars[host].ansible_host | default(hostvars[host].ansible_default_ipv4.address) }} {{ host }}
           {% endfor %}
