@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for rabbitmq
+
+- name: Install required packages
+  apt:
+    name:
+      - "{{ rabbitmq_package_name }}"
+      - erlang-nox
+    state: present
+    update_cache: yes
+
+- name: Ensure RabbitMQ service is enabled and started
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- name: Set RabbitMQ Erlang cookie
+  copy:
+    dest: /var/lib/rabbitmq/.erlang.cookie
+    content: "{{ rabbitmq_erlang_cookie }}"
+    owner: rabbitmq
+    group: rabbitmq
+    mode: '0400'
+  notify: restart rabbitmq
+
+- name: Flush handlers after cookie change
+  meta: flush_handlers
+
+- name: Enable RabbitMQ management plugin
+  command: rabbitmq-plugins enable rabbitmq_management
+  register: plugin_enable
+  changed_when: "'already_enabled' not in plugin_enable.stdout"
+  notify: restart rabbitmq
+
+- name: Flush handlers after enabling plugin
+  meta: flush_handlers
+
+- name: Wait for RabbitMQ to be fully started
+  command: rabbitmqctl status
+  register: rabbitmq_status
+  retries: 10
+  delay: 6
+  until: rabbitmq_status.rc == 0
+
+# ---------- USERS & VHOST ----------
+
+- name: Ensure RabbitMQ admin user exists
+  community.rabbitmq.rabbitmq_user:
+    user: "{{ rabbitmq_user }}"
+    password: "{{ rabbitmq_password }}"
+    tags: administrator
+    state: present
+
+- name: Ensure vhost exists
+  community.rabbitmq.rabbitmq_vhost:
+    name: "{{ rabbitmq_vhost }}"
+    state: present
+
+# ---------- CLUSTERING (SAFE) ----------
+
+- name: Stop RabbitMQ on non-primary nodes
+  command: rabbitmqctl stop_app
+  when: inventory_hostname != rabbitmq_nodes[0]
+
+- name: Join cluster to primary node
+  command: rabbitmqctl join_cluster rabbit@{{ rabbitmq_nodes[0] }}
+  when: inventory_hostname != rabbitmq_nodes[0]
+
+- name: Start RabbitMQ on non-primary nodes
+  command: rabbitmqctl start_app
+  when: inventory_hostname != rabbitmq_nodes[0]
+
+# ---------- HA POLICY ----------
+
+- name: Set HA policy (classic mirrored queues)
+  community.rabbitmq.rabbitmq_policy:
+    vhost: "{{ rabbitmq_vhost }}"
+    name: "{{ rabbitmq_policy_name }}"
+    pattern: "{{ rabbitmq_policy_pattern }}"
+    definition: "{{ rabbitmq_policy_definition }}"
+    state: present
