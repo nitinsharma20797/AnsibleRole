@@ -170,7 +170,6 @@ By running common.yml first, all nodes can resolve each other and SSH connectivi
 
 ---
 
----
 
 ##  Contact Information
 
