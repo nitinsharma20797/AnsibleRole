@@ -4,9 +4,9 @@
   become: yes
   vars:
     hosts_map:
-      rabbit1: 54.163.61.49
-      rabbit2: 50.17.28.165
-      rabbit3: 98.92.224.124
+      node1: 34.228.55.113
+      node2: 13.218.123.143
+      node3: 54.208.231.84
 
   tasks:
 

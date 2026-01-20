@@ -2,21 +2,56 @@
 ---
 # defaults file for rabbitmq
 
+# ---------------------------
+# RabbitMQ core settings
+# ---------------------------
 rabbitmq_erlang_cookie: "MY_SECRET_COOKIE"
 
-# MUST match `hostname` command output
+# MUST match `hostname` output on all nodes
 rabbitmq_nodes:
-  - rabbit1
-  - rabbit2
-  - rabbit3
+  - node1
+  - node2
+  - node3 
 
+# ---------------------------
+# User & vhost
+# ---------------------------
 rabbitmq_user: "admin"
 rabbitmq_password: "Admin123"
-
 rabbitmq_vhost: "/"
 
+# ---------------------------
+# Packages (OS aware)
+# ---------------------------
+rabbitmq_package_name: rabbitmq-server
+
+rabbitmq_packages_debian:
+  - rabbitmq-server
+  - erlang-nox
+
+rabbitmq_packages_redhat:
+  - rabbitmq-server
+  - erlang
+
+rabbitmq_service_name: rabbitmq-server
+
+# ---------------------------
+# HA Policy
+# ---------------------------
 rabbitmq_policy_name: "ha-all"
 rabbitmq_policy_pattern: ".*"
 
-# Classic mirrored queues (OK for lab)
-rabbitmq_policy_definition: '{"ha-mode":"all"}'
+# Classic mirrored queues (LAB only)
+rabbitmq_policy_definition: >
+  {"ha-mode":"all"}
+
+# 👉 For production (Quorum Queues) use instead:
+# rabbitmq_policy_definition: >
+#   {"queue-type":"quorum"}
+rabbitmq_ssl_enabled: false  # Change to true when certs are available
+rabbitmq_ssl_port: 5671
+rabbitmq_ssl_cert: /etc/rabbitmq/ssl/server_cert.pem
+rabbitmq_ssl_key: /etc/rabbitmq/ssl/server_key.pem
+rabbitmq_ssl_cacert: /etc/rabbitmq/ssl/cacert.pem
+rabbitmq_ssl_verify: verify_peer
+rabbitmq_ssl_fail_if_no_peer_cert: true

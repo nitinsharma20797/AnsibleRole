@@ -1,0 +1,19 @@
+---
+- name: Add RabbitMQ official repository (RHEL 9)
+  yum_repository:
+    name: rabbitmq
+    description: RabbitMQ Official Repository
+    baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/9/$basearch
+    gpgcheck: yes
+    gpgkey: https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
+    enabled: yes
+  become: yes
+
+- name: Refresh dnf cache (retry if fails)
+  dnf:
+    update_cache: yes
+  become: yes
+  retries: 5
+  delay: 10
+  register: dnf_update
+  until: dnf_update is succeeded

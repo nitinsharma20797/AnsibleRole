@@ -1,0 +1,11 @@
+---
+# rabbitmq/tasks/ssl.yml
+- name: "SSL setup placeholder (no certs yet)"
+  debug:
+    msg: "SSL setup will be configured here once certificates are available"
+
+# Future tasks to copy certs would go here:
+# - Copy server certificate
+# - Copy private key
+# - Copy CA certificate
+# - Ensure permissions

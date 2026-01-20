@@ -2,6 +2,7 @@
 # handlers file for rabbitmq
 ---
 - name: restart rabbitmq
-  service:
+  systemd:
     name: rabbitmq-server
     state: restarted
+  become: yes
