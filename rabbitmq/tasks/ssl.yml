@@ -1,11 +1,56 @@
 ---
 # rabbitmq/tasks/ssl.yml
+# -------------------------------
+# SSL setup (future support)
+# -------------------------------
+# This file is a placeholder for SSL configuration.
+# Certificates are not yet available. 
+# Once available, uncomment the tasks below and set `rabbitmq_ssl_enabled: true`.
+
+# -------------------------------
+# Placeholder message
+# -------------------------------
 - name: "SSL setup placeholder (no certs yet)"
   debug:
     msg: "SSL setup will be configured here once certificates are available"
 
-# Future tasks to copy certs would go here:
-# - Copy server certificate
-# - Copy private key
-# - Copy CA certificate
-# - Ensure permissions
+# -------------------------------
+# Future SSL tasks (commented out)
+# -------------------------------
+
+# - name: Create RabbitMQ SSL directory
+#   file:
+#     path: /etc/rabbitmq/ssl
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: '0755'
+#   become: yes
+
+# - name: Copy SSL server certificate
+#   copy:
+#     src: files/ssl/server_cert.pem
+#     dest: /etc/rabbitmq/ssl/server_cert.pem
+#     owner: root
+#     group: root
+#     mode: '0644'
+#   become: yes
+
+# - name: Copy SSL private key
+#   copy:
+#     src: files/ssl/server_key.pem
+#     dest: /etc/rabbitmq/ssl/server_key.pem
+#     owner: root
+#     group: root
+#     mode: '0600'
+#   become: yes
+
+# - name: Copy SSL CA certificate (optional)
+#   copy:
+#     src: files/ssl/cacert.pem
+#     dest: /etc/rabbitmq/ssl/cacert.pem
+#     owner: root
+#     group: root
+#     mode: '0644'
+#   become: yes
+
