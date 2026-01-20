@@ -147,9 +147,11 @@ By running common.yml first, all nodes can resolve each other and SSH connectivi
 **A1:** Yes, the role is idempotent. Re-running will ensure all configurations remain consistent without breaking the cluster.
 
 **Q2: How do I enable SSL?**
+
 **A2:** Place your SSL certificates in /etc/rabbitmq/ssl/ and set rabbitmq_ssl_enabled: true in defaults/main.yml. Re-run the playbook to apply SSL.
 
 **Q3: What ports need to be open for this cluster?**
+
 **A3:** Ensure the following ports are open between nodes:
 
 5672 – AMQP
@@ -159,9 +161,11 @@ By running common.yml first, all nodes can resolve each other and SSH connectivi
 25672 – Clustering and CLI tools
 
 **Q4: Can I add more nodes to the cluster later?**
+
 **A4:** Yes, add the new node to the rabbitmq_nodes list in defaults/main.yml and rerun the playbook. The new node will join the cluster automatically.
 
 **Q5: What if I face package download issues on RHEL nodes?**
+
 **A5:** This usually occurs when the Erlang or RabbitMQ repo is unreachable. Verify connectivity and try later or configure a local repository mirror.
 
 ---
