@@ -1,8 +1,0 @@
----
-- name: Wait for RabbitMQ to be ready
-  command: rabbitmqctl status
-  register: rabbitmq_status
-  retries: 10
-  delay: 6
-  until: rabbitmq_status.rc == 0
-  become: yes

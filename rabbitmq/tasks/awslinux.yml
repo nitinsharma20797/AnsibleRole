@@ -1,0 +1,64 @@
+---
+# ===============================
+# Amazon Linux 2023 (EL9)
+# ===============================
+- name: Add RabbitMQ EL9 repository
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "2023"
+  copy:
+    dest: /etc/yum.repos.d/rabbitmq.repo
+    content: |
+      [modern-erlang]
+      name=modern-erlang-el9
+      baseurl=https://yum1.rabbitmq.com/erlang/el/9/$basearch
+              https://yum2.rabbitmq.com/erlang/el/9/$basearch
+      repo_gpgcheck=1
+      enabled=1
+      gpgkey=https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+      gpgcheck=1
+      sslverify=1
+      sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+
+      [modern-erlang-noarch]
+      name=modern-erlang-el9-noarch
+      baseurl=https://yum1.rabbitmq.com/erlang/el/9/noarch
+              https://yum2.rabbitmq.com/erlang/el/9/noarch
+      repo_gpgcheck=1
+      enabled=1
+      gpgkey=https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+      gpgcheck=1
+      sslverify=1
+      sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+
+      [rabbitmq-el9]
+      name=rabbitmq-el9
+      baseurl=https://yum2.rabbitmq.com/rabbitmq/el/9/$basearch
+              https://yum1.rabbitmq.com/rabbitmq/el/9/$basearch
+      repo_gpgcheck=1
+      enabled=1
+      gpgkey=https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key
+      gpgcheck=1
+      sslverify=1
+      sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+
+      [rabbitmq-el9-noarch]
+      name=rabbitmq-el9-noarch
+      baseurl=https://yum2.rabbitmq.com/rabbitmq/el/9/noarch
+              https://yum1.rabbitmq.com/rabbitmq/el/9/noarch
+      repo_gpgcheck=1
+      enabled=1
+      gpgkey=https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key
+      gpgcheck=1
+      sslverify=1
+      sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+
+- name: Install Erlang & RabbitMQ (Amazon Linux 2023)
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "2023"
+  yum:
+    name:
+      - erlang
+      - rabbitmq-server
+    state: present

@@ -27,9 +27,9 @@ rabbitmq_package_name: rabbitmq-server
 
 rabbitmq_packages_debian:
   - rabbitmq-server
-  - erlang-nox
+  - erlang
 
-rabbitmq_packages_redhat:
+rabbitmq_packages_aws:
   - rabbitmq-server
   - erlang
 
@@ -38,14 +38,11 @@ rabbitmq_service_name: rabbitmq-server
 # ---------------------------
 # HA Policy
 # ---------------------------
-rabbitmq_policy_name: "ha-all"
+rabbitmq_policy_name: ha-all
 rabbitmq_policy_pattern: ".*"
+rabbitmq_policy_definition: '{"ha-mode":"all","ha-sync-mode":"automatic"}'
 
-# Classic mirrored queues (LAB only)
-rabbitmq_policy_definition: >
-  {"ha-mode":"all"}
-
-# 👉 For production (Quorum Queues) use instead:
+#  For production (Quorum Queues) use instead:
 # rabbitmq_policy_definition: >
 #   {"queue-type":"quorum"}
 rabbitmq_ssl_enabled: false  # Change to true when certs are available

@@ -1,7 +1,0 @@
----
-- name: Enable RabbitMQ management plugin
-  command: rabbitmq-plugins enable rabbitmq_management
-  register: plugin_enable
-  changed_when: "'already_enabled' not in plugin_enable.stdout"
-  notify: restart rabbitmq
-  become: yes

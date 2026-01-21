@@ -1,0 +1,96 @@
+---
+# ---------------- SERVICE ----------------
+- name: Enable and start RabbitMQ
+  systemd:
+    name: "{{ rabbitmq_service_name }}"
+    state: started
+    enabled: yes
+  become: yes
+
+# ---------------- ERLANG COOKIE ----------------
+- name: Set Erlang cookie
+  copy:
+    dest: /var/lib/rabbitmq/.erlang.cookie
+    content: "{{ rabbitmq_erlang_cookie }}"
+    owner: rabbitmq
+    group: rabbitmq
+    mode: '0400'
+  notify: restart rabbitmq
+  become: yes
+
+- meta: flush_handlers
+
+# ---------------- CONFIG ----------------
+- name: Configure RabbitMQ (allow remote access & SSL if enabled)
+  template:
+    src: rabbitmq.config.jinja2
+    dest: /etc/rabbitmq/rabbitmq.config
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart rabbitmq
+  become: yes
+
+- meta: flush_handlers
+
+# ---------------- PLUGINS ----------------
+- name: Enable management plugin
+  command: rabbitmq-plugins enable rabbitmq_management
+  register: plugin_enable
+  changed_when: "'already_enabled' not in plugin_enable.stdout"
+  notify: restart rabbitmq
+  become: yes
+
+- meta: flush_handlers
+
+# ---------------- WAIT ----------------
+- name: Wait for RabbitMQ
+  command: rabbitmqctl status
+  register: rabbitmq_status
+  retries: 10
+  delay: 6
+  until: rabbitmq_status.rc == 0
+  become: yes
+
+# ---------------- USERS & VHOST ----------------
+- name: Create admin user
+  community.rabbitmq.rabbitmq_user:
+    user: "{{ rabbitmq_user }}"
+    password: "{{ rabbitmq_password }}"
+    tags: administrator
+    state: present
+  become: yes
+
+- name: Create vhost
+  community.rabbitmq.rabbitmq_vhost:
+    name: "{{ rabbitmq_vhost }}"
+    state: present
+  become: yes
+
+# ---------------- CLUSTERING ----------------
+- name: Stop RabbitMQ on non-primary nodes
+  command: rabbitmqctl stop_app
+  when: inventory_hostname != rabbitmq_nodes[0]
+  become: yes
+
+- name: Join cluster
+  command: rabbitmqctl join_cluster rabbit@{{ rabbitmq_nodes[0] }}
+  when: inventory_hostname != rabbitmq_nodes[0]
+  become: yes
+
+- name: Start RabbitMQ on non-primary nodes
+  command: rabbitmqctl start_app
+  when: inventory_hostname != rabbitmq_nodes[0]
+  become: yes
+
+# ---------------- HA POLICY (FIXED) ----------------
+- name: Set HA policy for queues
+  command: >
+    rabbitmqctl set_policy
+    {{ rabbitmq_policy_name }}
+    "{{ rabbitmq_policy_pattern }}"
+    '{{ rabbitmq_policy_definition }}'
+    --apply-to queues
+  run_once: true
+  become: yes
+  when: rabbitmq_cluster_ready | default(true)

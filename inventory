@@ -1,0 +1,9 @@
+[rabbit_nodes]
+node1 ansible_host=44.200.194.26 ansible_user=ec2-user ansible_ssh_private_key_file=/home/nitin/Downloads/nitin-iam.pem ansible_python_interpreter=/usr/bin/python3
+node2 ansible_host=44.212.95.254 ansible_user=ec2-user ansible_ssh_private_key_file=/home/nitin/Downloads/nitin-iam.pem ansible_python_interpreter=/usr/bin/python3
+node3 ansible_host=100.24.115.78 ansible_user=ec2-user ansible_ssh_private_key_file=/home/nitin/Downloads/nitin-iam.pem ansible_python_interpreter=/usr/bin/python3
+
+[rabbit_nodes:vars]
+# Common vars for all RabbitMQ nodes (if needed)
+# ansible_user=ubuntu   # Not needed, we defined per host
+# ansible_ssh_private_key_file=/home/nitin/Downloads/nitin-iam.pem  # Already defined per host

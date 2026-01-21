@@ -1,0 +1,16 @@
+---
+# SPDX-License-Identifier: MIT-0
+
+# ---------------- OS-SPECIFIC TASKS ----------------
+- import_tasks: ubuntu.yml
+  when: ansible_os_family == "Debian"
+
+- import_tasks: awslinux.yml
+  when: ansible_os_family in ["RedHat", "Amazon"]
+
+# ---------------- SSL SUPPORT ----------------
+- import_tasks: ssl.yml
+  when: rabbitmq_ssl_enabled | default(false)
+
+# ---------------- COMMON TASKS ----------------
+- import_tasks: other.yml

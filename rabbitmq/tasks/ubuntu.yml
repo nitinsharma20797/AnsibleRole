@@ -1,0 +1,8 @@
+---
+# ---------------- INSTALL ----------------
+- name: Install RabbitMQ & Erlang (Debian)
+  apt:
+    name: "{{ rabbitmq_packages_debian }}"
+    state: present
+    update_cache: yes
+  become: yes

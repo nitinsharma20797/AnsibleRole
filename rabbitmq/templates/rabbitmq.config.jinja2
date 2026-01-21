@@ -1,10 +1,11 @@
 [
   {rabbit, [
     %% ---------------- LOOPBACK ----------------
-    {loopback_users, []},  %% allow remote access for all users
+    {loopback_users, []}  %% allow remote access for all users
 
-    %% ---------------- SSL (FUTURE) ----------------
     {% if rabbitmq_ssl_enabled %}
+    , %% Add comma only if SSL block is included
+    %% ---------------- SSL ----------------
     {ssl_listeners, [{{ rabbitmq_ssl_port }}]},
     {ssl_options, [
       {cacertfile, "{{ rabbitmq_ssl_cacert }}"},
@@ -12,10 +13,10 @@
       {keyfile,    "{{ rabbitmq_ssl_key }}"},
       {verify,     {{ rabbitmq_ssl_verify | quote }}},
       {fail_if_no_peer_cert, {{ rabbitmq_ssl_fail_if_no_peer_cert | lower }}}
-    ]},
+    ]}
     {% endif %}
 
     %% ---------------- ADDITIONAL OPTIONS (FUTURE) ----------------
-    %% You can add clustering, default_vhost, or heartbeat configs here
+    %% You can add clustering, default_vhost, heartbeat, etc.
   ]}
 ].
