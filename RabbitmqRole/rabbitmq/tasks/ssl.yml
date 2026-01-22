@@ -1,55 +1,87 @@
 ---
 # rabbitmq/tasks/ssl.yml
 # -------------------------------
-# SSL setup (future support)
-# -------------------------------
-# This file is a placeholder for SSL configuration.
-# Certificates are not yet available. 
-# Once available, uncomment the tasks below and set `rabbitmq_ssl_enabled: true`.
-
-# -------------------------------
-# Placeholder message
-# -------------------------------
-- name: "SSL setup placeholder (no certs yet)"
-  debug:
-    msg: "SSL setup will be configured here once certificates are available"
-
-# -------------------------------
-# Future SSL tasks (commented out)
+# RabbitMQ SSL setup
 # -------------------------------
 
-# - name: Create RabbitMQ SSL directory
-#   file:
-#     path: /etc/rabbitmq/ssl
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: '0755'
-#   become: yes
+- name: Install OpenSSL
+  package:
+    name: openssl
+    state: present
+  become: yes
 
-# - name: Copy SSL server certificate
-#   copy:
-#     src: files/ssl/server_cert.pem
-#     dest: /etc/rabbitmq/ssl/server_cert.pem
-#     owner: root
-#     group: root
-#     mode: '0644'
-#   become: yes
+- name: Create RabbitMQ SSL directory
+  file:
+    path: /etc/rabbitmq/ssl
+    state: directory
+    owner: rabbitmq
+    group: rabbitmq
+    mode: '0750'
+  become: yes
 
-# - name: Copy SSL private key
-#   copy:
-#     src: files/ssl/server_key.pem
-#     dest: /etc/rabbitmq/ssl/server_key.pem
-#     owner: root
-#     group: root
-#     mode: '0600'
-#   become: yes
+# -------------------------------
+# CA CERTIFICATE
+# -------------------------------
 
-# - name: Copy SSL CA certificate (optional)
-#   copy:
-#     src: files/ssl/cacert.pem
-#     dest: /etc/rabbitmq/ssl/cacert.pem
-#     owner: root
-#     group: root
-#     mode: '0644'
-#   become: yes
+- name: Generate CA private key
+  command: openssl genrsa -out /etc/rabbitmq/ssl/ca.key 2048
+  args:
+    creates: /etc/rabbitmq/ssl/ca.key
+  become: yes
+
+- name: Generate CA certificate
+  command: >
+    openssl req -x509 -new -nodes
+    -key /etc/rabbitmq/ssl/ca.key
+    -sha256 -days 3650
+    -out /etc/rabbitmq/ssl/ca.pem
+    -subj "/C=IN/O=RabbitMQ/OU=CA/CN=RabbitMQ-CA"
+  args:
+    creates: /etc/rabbitmq/ssl/ca.pem
+  become: yes
+
+# -------------------------------
+# SERVER CERTIFICATE
+# -------------------------------
+
+- name: Generate server private key
+  command: openssl genrsa -out /etc/rabbitmq/ssl/server.key 2048
+  args:
+    creates: /etc/rabbitmq/ssl/server.key
+  become: yes
+
+- name: Generate server CSR
+  command: >
+    openssl req -new
+    -key /etc/rabbitmq/ssl/server.key
+    -out /etc/rabbitmq/ssl/server.csr
+    -subj "/C=IN/O=RabbitMQ/OU=Server/CN={{ inventory_hostname }}"
+  args:
+    creates: /etc/rabbitmq/ssl/server.csr
+  become: yes
+
+- name: Generate server certificate signed by CA
+  command: >
+    openssl x509 -req
+    -in /etc/rabbitmq/ssl/server.csr
+    -CA /etc/rabbitmq/ssl/ca.pem
+    -CAkey /etc/rabbitmq/ssl/ca.key
+    -CAcreateserial
+    -out /etc/rabbitmq/ssl/server.pem
+    -days 825 -sha256
+  args:
+    creates: /etc/rabbitmq/ssl/server.pem
+  become: yes
+
+# -------------------------------
+# PERMISSIONS
+# -------------------------------
+
+- name: Set ownership & permissions for SSL files
+  file:
+    path: /etc/rabbitmq/ssl
+    owner: rabbitmq
+    group: rabbitmq
+    recurse: yes
+    mode: '0640'
+  become: yes
